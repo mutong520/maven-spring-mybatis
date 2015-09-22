@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.activity.ActivityMapper">
+         
+    <select id="getActivityById" parameterType="java.lang.Long" resultType="com.cigna.hra.model.ActivityModel">
+    	select ID as id,
+    	       TITLE as title,
+    	       DESCS as descs,
+    	       START_TIME as startTime,
+    	       END_TIME as endTime,
+    	       STATUS as status
+    	 from T_ACTIVITY where ID = #{id} and STATUS = 0
+    </select>
+    
+    <select id="getNowActivityList" resultType="com.cigna.hra.model.ActivityModel">
+    	select ID as id,
+    	       TITLE as title,
+    	       DESCS as descs,
+    	       START_TIME as startTime,
+    	       END_TIME as endTime,
+    	       STATUS as status
+    	 from T_ACTIVITY where STATUS = 0 
+    	 <![CDATA[
+	    	 and unix_timestamp(START_TIME) <= unix_timestamp(now()) 
+	    	 and unix_timestamp(now()) <= unix_timestamp(END_TIME)
+	     ]]>
+    </select>
+
+</mapper>

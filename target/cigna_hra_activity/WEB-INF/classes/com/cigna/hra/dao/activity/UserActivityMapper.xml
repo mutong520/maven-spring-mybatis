@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.activity.UserActivityMapper">
+    
+    <resultMap id="BaseResultMap" type="com.cigna.hra.model.UserActivityModel">
+		<result column="ACTIVITY_ID" property="activityId" jdbcType="BIGINT" />
+		<result column="PHONE_NUMBER" property="phoneNumber" jdbcType="BIGINT" />
+		<result column="DATE_PARTICIPATED" property="dateParticipated" />
+	</resultMap>
+    
+    <!-- 根据手机号，活动Id查询用户黑名单个数 -->     
+    <select id="getTodayUserActivityCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    	select count(1)
+    	 from T_USER_ACTIVITY where ACTIVITY_ID = #{activityId} and PHONE_NUMBER=#{phoneNum} and DATE_FORMAT(DATE_PARTICIPATED,'%Y-%m-%d')=DATE_FORMAT(now(),'%Y-%m-%d')
+    </select>
+    
+    <select id="getTodayUserActivityList" resultMap="BaseResultMap">
+    	SELECT ACTIVITY_ID, PHONE_NUMBER, DATE_PARTICIPATED
+    	 FROM T_USER_ACTIVITY WHERE TO_DAYS(DATE_PARTICIPATED) = TO_DAYS(NOW())
+    </select>
+	
+	<!-- 添加用户参加的活动 -->
+	<insert id="addUserActivity" parameterType="com.cigna.hra.model.UserActivityModel" useGeneratedKeys="true">
+		insert into T_USER_ACTIVITY(ACTIVITY_ID,
+		                            PHONE_NUMBER,
+		                            DATE_PARTICIPATED,
+		                            DATE_CREATED,
+		                            CREATED_BY,
+		                            DATE_UPDATED,
+		                            UPDATED_BY) 
+		                     values(#{activityId},
+		                            #{phoneNumber},
+		                            #{dateParticipated},
+		                            now(),
+		                            'system',
+		                            now(),
+		                            'system') 
+	</insert>
+</mapper>

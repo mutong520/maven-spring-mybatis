@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.activity.UserActivityBlackMapper">
+
+	<resultMap id="BaseResultMap" type="com.cigna.hra.model.UserActivityBlackModel">
+		<result column="PHONE_NUMBER" property="phoneNumber" jdbcType="BIGINT" />
+		<result column="ACTIVITY_ID" property="activityId" jdbcType="BIGINT" />
+	</resultMap>
+    
+    <!-- 根据手机号，活动Id查询用户黑名单个数 -->     
+    <select id="getUserActivityBlackCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    	select count(1)
+    	 from T_USER_ACTIVITY_BLACK where ACTIVITY_ID = #{activityId} and PHONE_NUMBER=#{phoneNum}
+    </select>
+    
+    <select id="getPhoneBlacks" resultMap="BaseResultMap">
+    	select PHONE_NUMBER,ACTIVITY_ID from T_USER_ACTIVITY_BLACK
+    </select>
+
+</mapper>

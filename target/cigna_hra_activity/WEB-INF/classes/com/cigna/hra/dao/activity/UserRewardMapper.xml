@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.activity.UserRewardMapper">
+    
+    <!-- 根据手机号，活动Id查询一年内的获奖次数 -->     
+    <select id="getYearUserReward" parameterType="java.util.Map" resultType="java.lang.Integer">
+	    <![CDATA[
+	    	select count(1)
+	    	 from T_USER_REWARD where  PHONE_NUMBER=#{phoneNum} 
+	    ]]>
+	    <if test="ACTIVITY_ID != null">  
+          	and  ACTIVITY_ID = #{activityId}  
+        </if>  
+	    <![CDATA[
+	    	 and date(DATE_REWARD) <= date(now()) 
+	    	 and date(DATE_REWARD) >= date(date_add(now(),interval -1 year))
+	     ]]>
+    </select>   
+	
+	<!-- 新增用户获奖记录 -->
+	<insert id="addUserReward" parameterType="com.cigna.hra.model.UserRewardModel" useGeneratedKeys="true">
+		insert into T_USER_REWARD(ACTIVITY_ID,
+		                            REWARD_ID,
+		                            PHONE_NUMBER,
+		                            DATE_REWARD,
+		                            DATE_CREATED,
+		                            CREATED_BY,
+		                            DATE_UPDATED,
+		                            UPDATED_BY) 
+		                     values(#{activityId},
+		                            #{rewardId},
+		                            #{phoneNum},
+		                            now(),
+		                            now(),
+		                            'system',
+		                            now(),
+		                            'system') 
+	</insert>
+	
+	<!-- 判断当天奖品的中奖次数 -->
+	<select id="selectTodayRewardCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(1) from T_USER_REWARD where ACTIVITY_ID=#{activityId} and REWARD_ID=#{rewardId}
+	</select>
+	
+	<resultMap type="java.util.Map" id="selectAllActivityRewardMap">
+		<result column="NAME" property="rewardName"/>
+		<result column="PHONE_NUMBER" property="phoneNum"/>
+		<result column="DATE_REWARD" property="dateReward"/>
+	</resultMap>
+	
+	<!-- 查询所有的中奖名单 -->
+	<select id="selectAllActivityRewardList" resultMap="selectAllActivityRewardMap">
+		SELECT
+			tr.NAME,
+			tur.PHONE_NUMBER,
+			DATE_FORMAT(tur.DATE_REWARD,'%Y-%m-%d') as DATE_REWARD
+		FROM
+			T_USER_REWARD tur,
+			T_REWARD tr
+		WHERE tur.REWARD_ID = tr.ID and 1=1 
+		<if test="array != null"> 
+			AND tr.ACTIVITY_ID in 
+			<foreach collection="array" index="index" item="activity" open=" (" separator="," close=")"> 
+	             #{activity} 
+	        </foreach>
+	    </if>
+	    order by tur.DATE_REWARD desc limit 10
+	</select>
+	
+	<!-- 更新用户中奖之后，礼品收件信息 -->
+	<update id="updateRecepientMsg" parameterType="com.cigna.hra.model.UserRewardModel">
+		update T_USER_REWARD set RECEPIENT = #{recepient},RECEPIENT_PHONE = #{recepientPhone},RECEPIENT_Add = #{recepientAdd}
+		    where ACTIVITY_ID = #{activityId} and PHONE_NUMBER = #{phoneNum}
+		
+	</update>
+</mapper>

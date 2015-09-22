@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.app.TeamUsersMapper">
+
+	<select id="isJoinTeam" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM T_TEAM_USERS WHERE USER_ID = #{userId}
+	</select>
+	
+	<insert id="addTeamUser" parameterType="com.cigna.hra.model.TeamUsersModel" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO T_TEAM_USERS (
+			TEAM_ID,
+			USER_ID,
+			TYPE,
+			DATE_CREATED ,
+			CREATED_BY,
+			DATE_UPDATED,
+			UPDATED_BY)
+		VALUES
+			(#{teamId},
+			#{userId},
+			#{type},
+			now(),
+			'system',
+			now(),
+			'system')
+	</insert>
+	
+	<select id="getUserNameById" parameterType="java.lang.Long" resultType="java.util.Map">
+		SELECT nick_user nickName,IFNULL(user_icon_2,'') userIcon FROM CP_USER where id=#{id} limit 1;
+	</select>
+
+	
+</mapper>

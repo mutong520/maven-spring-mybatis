@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.activity.ActivityMapper">
+         
+    <select id="getActivityById" parameterType="java.lang.Long" resultType="com.cigna.hra.model.ActivityModel">
+    	select ID as id, TITLE as title from T_ACTIVITY where ID = #{id}
+    </select>
+    
+</mapper>

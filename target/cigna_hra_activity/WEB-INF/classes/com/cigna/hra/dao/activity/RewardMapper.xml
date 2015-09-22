@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.activity.RewardMapper">
+	
+	<resultMap id="BaseResultMap" type="com.cigna.hra.model.RewardModel">
+		<result column="ID" property="ID" jdbcType="BIGINT" />
+		<result column="ACTIVITY_ID" property="ActivityID" jdbcType="BIGINT" />
+		<result column="NAME" property="Name" jdbcType="VARCHAR" />
+		<result column="DESCS" property="Descs" jdbcType="VARCHAR" />
+		<result column="RATE" property="Rate" jdbcType="VARCHAR" />
+		<result column="RULE" property="Rule" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		ID,ACTIVITY_ID,NAME,DESCS,RATE,RULE
+	</sql>
+	
+	<select id="getRewardById" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from T_REWARD
+		where ID = #{ID,jdbcType=BIGINT}
+	</select>
+	
+	<select id="getRewardList" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from T_REWARD
+	</select>
+	
+	<!-- 根据活动查询奖品信息 -->
+	<select id="selectRewardByActivityId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		select 
+			<include refid="Base_Column_List" />
+		from T_REWARD
+		where ACTIVITY_ID=#{activityID}
+	</select>
+	
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cigna.hra.dao.cmb.CmbDBMapper">
+	
+	<resultMap id="BaseResultMap" type="com.cigna.hra.model.UserTokenModel">
+		<result column="PHONE" property="phone" jdbcType="VARCHAR" />
+		<result column="SESSION" property="token" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap id="UserRankResultMap" type="com.cigna.hra.model.UserRankModel">
+		<result column="RANKNUM" property="userRankNum" jdbcType="BIGINT" />
+		<result column="HEALTHCOIN" property="userHealthCoin" jdbcType="BIGINT" />
+	</resultMap>
+	
+	<resultMap id="WorldRankResultMap" type="com.cigna.hra.model.UserRankModel">
+		<result column="RANKNUM" property="userRankNum" jdbcType="BIGINT" />
+		<result column="HEALTHCOIN" property="userHealthCoin" jdbcType="BIGINT" />
+		<result column="NICK_USER" property="nickName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="getUserTokenModelByPhone" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT CU.PHONE,CUS.SESSION FROM CP_USER CU INNER JOIN CP_USER_SESSION CUS ON (CUS.ID = CU.ID)
+		WHERE CU.PHONE = #{phone,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getUserRankResult" resultMap="UserRankResultMap" parameterType="java.lang.String">
+		<![CDATA[
+		SELECT  ncpu.SCORE AS HEALTHCOIN, ncpu.RANKNUM AS RANKNUM
+		FROM CP_USER cpu JOIN 
+		(
+			SELECT CU.PHONE, FLOOR(CU.SCORE) AS SCORE, @rownum := @rownum + 1 AS RANKNUM
+			FROM CP_USER CU, (SELECT @rownum := 0) r
+			ORDER BY CU.SCORE DESC,CU.UPDATED_TIME ASC
+		) ncpu ON  cpu.PHONE = ncpu.PHONE 
+		WHERE cpu.PHONE = #{phone,jdbcType=VARCHAR}
+		]]>
+	</select>
+	
+	<select id="getWorldRankResult" resultMap="WorldRankResultMap">
+		<![CDATA[
+		SELECT a.NICK_USER, a.SCORE AS HEALTHCOIN, a.RANKNUM
+		FROM
+		(
+			SELECT IFNULL(CU.NICK_USER,'信诺君') AS NICK_USER, FLOOR(CU.SCORE) AS SCORE, @rownum := @rownum + 1 AS RANKNUM
+			FROM CP_USER CU, (SELECT @rownum := 0) r
+			ORDER BY CU.SCORE DESC,CU.UPDATED_TIME ASC LIMIT 10
+		) a
+		]]>
+	</select>
+	
+	<!-- 根据用户id查询token记录 -->
+	<select id="getUserTokenModelByUserId" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT CU.PHONE,CUS.SESSION FROM CP_USER CU INNER JOIN CP_USER_SESSION CUS ON (CUS.ID = CU.ID)
+		WHERE CU.ID = #{userId} 
+	</select>
+	
+</mapper>
